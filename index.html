@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="zh">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>超强白金四合一究极酒店管理系统v1.3</title>
+</head>
+<script src="https://unpkg.com/layui@2.9.13/dist/layui.js"></script>
+<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+<link href="https://unpkg.com/layui@2.9.13/dist/css/layui.css" rel="stylesheet">
+<script>
+    let numberArr = [
+        '家庭床_101',
+        '双人炕_102',
+        '家庭床_103',
+        '家庭床_105',
+        '大波房_106',
+        '双人炕_107',
+        '双人床_108',
+        '大床房_109',
+        '大床房_110',
+        '双床房_111',
+        '双床房_112',
+        '大床房_113'
+    ];
+    window.onload = function () {
+        let date = new Date();
+        var year = date.getFullYear();
+        var month = ("0" + (date.getMonth() + 1)).slice(-2);
+        var day = ("0" + date.getDate()).slice(-2);
+        console.info(year + "-" + month + "-" + day);
+        updateHtml(year + "-" + month + "-" + day);
+    }
+    layui.use(function () {
+        var laydate = layui.laydate;
+        laydate.render({
+            elem: '#datePicker',
+            position: 'static',
+            done: function (value, date, endDate) {
+                updateHtml(value);
+            }
+        });
+    });
+    function update(date, number, flag) {
+        let data = localStorage.getItem(date);
+        if (data == null) {
+            data = JSON.stringify({});
+        }
+        let dataJson = JSON.parse(data);
+        dataJson[number] = flag;
+        localStorage.setItem(date, JSON.stringify(dataJson));
+        updateHtml(date);
+    }
+    function updateHtml(date) {
+        let data = localStorage.getItem(date);
+        if (data == null) {
+            data = JSON.stringify({});
+        }
+        let dataJson = JSON.parse(data);
+        let roomListHtml = "";
+        numberArr.forEach(number => {
+            let flag;
+            try {
+                flag = dataJson[number]
+                if (flag == undefined) {
+                    flag = '0';
+                }
+            } catch (error) {
+                console.error(error);
+            }
+            roomListHtml = roomListHtml + `
+                    <div style="display: block;">
+                        <div style="width: 60%; display: inline-block; height: 45px; text-align: left; line-height: 45px;">
+                            <div style="border-radius: 10px; display: inline-block; font-size: 18px; height: 30px; line-height: 30px; background-color: ${flag == '0' ? "rgb(50, 200, 50)" : flag == '1' ? "rgb(200, 200, 50)" : "rgb(200, 50, 50)"};">
+                                &nbsp;&nbsp;
+                                ${number}&nbsp;&nbsp;${flag == '0' ? "已空房" : flag == '1' ? "已预订" : "已入住"}
+                                &nbsp;&nbsp;
+                            </div>
+                        </div>
+                        <div style="text-align: right; width: 30%; display: inline-block; font-size: medium; height: 45px; line-height: 45px;">
+                            <div style="background-color: rgb(50, 200, 50);" class="btn" onclick="update('${date}', '${number}', '0')">空</div>    
+                            <div style="background-color: rgb(200, 200, 50);" class="btn" onclick="update('${date}', '${number}', '1')">订</div>
+                            <div style="background-color: rgb(200, 50, 50);" class="btn" onclick="update('${date}', '${number}', '2')">住</div>
+                        </div>
+                    </div>
+                    `;
+        });
+        let html = `
+                <div style="font-size: large; font-weight: bold; height: 60px; line-height: 60px;">${date}</div>
+                ${roomListHtml}
+                `;
+        $("#data").html(html);
+    }
+</script>
+<style>
+    .layui-laydate-footer {
+        display: none !important;
+    }
+
+    .btn {
+        text-align: center !important;
+        display: inline-block;
+        width: 30px !important;
+        line-height: 30px;
+        height: 30px;
+        font-size: 18px;
+        border-radius: 10px;
+        cursor: pointer;
+    }
+
+    body {
+        margin: 0;
+        padding: 0;
+    }
+</style>
+
+<body style="width: 100% !important; height: 100% !important; text-align: center;">
+    <div style="font-size: large; font-weight: bold; height: 80px; line-height: 80px;">超强白金四合一究极酒店管理系统v1.3</div>
+    <div style="text-align: left;" class="layui-inline" id="datePicker"></div>
+    <div id="data" style="width: 100%;"></div>
+</body>
+
+</html>
